@@ -15,7 +15,9 @@ module SidekiqStatus
 
     module Prepending
       def perform(*args)
-        @status_container = SidekiqStatus::Container.load(jid)
+        status_job_id = self.class.respond_to?(:status_job_id) ? self.class.status_job_id(jid, args) : jid
+        @status_container = SidekiqStatus::Container.load(status_job_id) rescue nil
+        return super(*args) unless @status_container
 
         begin
           catch(:killed) do
@@ -32,6 +34,8 @@ module SidekiqStatus
 
     module InstanceMethods
       def status_container
+        return nil unless @status_container
+
         kill if @status_container.kill_requested?
         @status_container
       end
@@ -45,11 +49,11 @@ module SidekiqStatus
       end
 
       def set_status(status, message = nil)
-        self.sc.update_attributes('status' => status, 'message' => message)
+        self.sc.update_attributes('status' => status) if self.sc
       end
 
       def at(at, message = nil)
-        self.sc.update_attributes('at' => at, 'message' => message)
+        self.sc.update_attributes('at' => at, 'message' => message) if self.sc
       end
 
       def total=(total)

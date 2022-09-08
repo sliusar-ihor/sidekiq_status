@@ -23,17 +23,22 @@ module SidekiqStatus
 
       jid  = item['jid']
       args = item['args']
+      status_job_id = worker.respond_to?(:status_job_id) ? worker.status_job_id(jid, args) : jid
 
-      SidekiqStatus::Container.create(
-          'jid'    => jid,
+      result = yield
+
+      if result
+        SidekiqStatus::Container.create(
+          'jid'    => status_job_id,
           'worker' => worker.name,
           'queue'  => queue,
           'args'   => args
-      )
+        )
+      end
 
-      yield
+      result
     rescue Exception => exc
-      SidekiqStatus::Container.load(jid).delete rescue nil
+      SidekiqStatus::Container.load(status_job_id).delete rescue nil
       raise exc
     end
   end
