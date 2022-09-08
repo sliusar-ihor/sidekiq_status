@@ -43,11 +43,11 @@
           <td><%= @status.message %></td>
         </tr>
         <tr>
-          <td>payload</td>
+          <td>payloadss</td>
           <td>
-            <code class="prettyprint" language="javascript">
-              <%= @status.payload.to_json %>
-            </code>
+            <pre>
+              <%= h @status.payload.to_s %>
+            </pre>
           </td>
         </tr>
         <tr>
