@@ -76,9 +76,10 @@ module SidekiqStatus
     # @param [Integer] stop
     # @return [Array<[String,jid]>] Array of hash-like arrays of job id => last_updated_at (unixtime) pairs
     # @see *Redis#zrange* for details on return values format
-    def self.status_jids(start = 0, stop = -1)
+    def self.status_jids(start = 0, stop = -1, order_by = nil)
       Sidekiq.redis do |conn|
-        conn.zrange(self.statuses_key, start, stop, :with_scores => true)
+        method = order_by == 'asc' ? :zrange : :zrevrange
+        conn.send(method, self.statuses_key, start, stop, :with_scores => true)
       end
     end
 
@@ -88,7 +89,22 @@ module SidekiqStatus
     # @param [Integer] start
     # @param [Integer] stop
     # @return [Array<SidekiqStatus::Container>]
-    def self.statuses(start = 0, stop = -1)
+    def self.statuses(start = 0, stop = -1, order_by = nil, sort = nil)
+      if !sort || sort == 'last_updated'
+        jids = status_jids(start, stop, order_by)
+        jids = Hash[jids].keys
+        load_multi(jids)
+      else
+        statuses = all_statuses || []
+        statuses.sort_by! {|status| status.send(sort) }
+        statuses.reverse! if order_by == 'asc'
+        statuses[start..stop]
+      end
+    end
+
+    def self.all_statuses
+      start = 0
+      stop = SidekiqStatus::Container.size
       jids = status_jids(start, stop)
       jids = Hash[jids].keys
       load_multi(jids)

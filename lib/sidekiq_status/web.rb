@@ -21,6 +21,12 @@ module SidekiqStatus
             redirect "#{root_path}#{subpath}"
           end
         end
+
+        def url_params(options)
+          params.merge(options).map do |key, value|
+            "#{key}=#{CGI.escape(value.to_s)}"
+          end.compact.join("&")
+        end
       end
 
       app.get '/statuses' do
@@ -32,7 +38,7 @@ module SidekiqStatus
         @total_size = SidekiqStatus::Container.size
 
         pageidx = @current_page - 1
-        @statuses = SidekiqStatus::Container.statuses(pageidx * @count, (pageidx + 1) * @count)
+        @statuses = SidekiqStatus::Container.statuses(pageidx * @count, (pageidx + 1) * @count, params[:order_by], params[:sort])
 
         erb(sidekiq_status_template(:statuses))
       end

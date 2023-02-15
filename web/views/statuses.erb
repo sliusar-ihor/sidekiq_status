@@ -16,12 +16,22 @@
   &nbsp;statuses
 </div>
 
+<% sort_symbol = !params['order_by'] || params['order_by'] == 'desc' ? "↑" : "↓" %>
+<% order_by = !params['order_by'] || params['order_by'] == 'desc' ? 'asc' : 'desc' %>
 <table class="table table-striped table-bordered">
   <tr>
     <th>Worker/jid</th>
     <th>Job args</th>
-    <th>Status</th>
-    <th>Last Updated ↆ</th>
+    <th>
+      <a href="<%= root_path %>/statuses?sort=status&order_by=<%= order_by %>&page=1">
+        Status <%= sort_symbol if params[:sort] == 'status' %>
+      </a>
+    </th>
+    <th>
+      <a href="<%= root_path %>/statuses?sort=last_updated&order_by=<%= order_by %>&page=1">
+        Last Updated <%= sort_symbol if !params[:sort] || params[:sort] == 'last_updated' %>
+      </a>
+    </th>
     <th>Progress</th>
     <th>Message</th>
     <th>Actions</th>
@@ -62,4 +72,27 @@
 </table>
 
 
-<%= erb :_paging, :locals => { :url => "#{root_path}statuses" } %>
+<% url = "#{root_path}statuses" %>
+<% if @total_size > @count %>
+  <ul class="pagination pull-right flip">
+    <li class="<%= 'disabled' if @current_page == 1 %>">
+      <a href="<%= url %>?<%= url_params('page' => 1) %>">&laquo;</a>
+    </li>
+    <% if @current_page > 1 %>
+      <li>
+        <a href="<%= url %>?<%= url_params('page' => @current_page - 1) %>"><%= @current_page - 1 %></a>
+      </li>
+    <% end %>
+    <li class="disabled">
+      <a href="<%= url %>?<%= url_params('page' => @current_page) %>"><%= @current_page %></a>
+    </li>
+    <% if @total_size > @current_page * @count %>
+      <li>
+        <a href="<%= url %>?<%= url_params('page' => @current_page + 1) %>"><%= @current_page + 1 %></a>
+      </li>
+    <% end %>
+    <li class="<%= 'disabled' if @total_size <= @current_page * @count %>">
+      <a href="<%= url %>?<%= url_params('page' => (@total_size.to_f / @count).ceil) %>">&raquo;</a>
+    </li>
+  </ul>
+<% end %>
