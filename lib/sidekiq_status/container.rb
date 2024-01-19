@@ -79,7 +79,7 @@ module SidekiqStatus
     def self.status_jids(start = 0, stop = -1, order_by = nil)
       Sidekiq.redis do |conn|
         method = order_by == 'asc' ? :zrange : :zrevrange
-        conn.send(method, self.statuses_key, start, stop, :with_scores => true)
+        conn.send(method, self.statuses_key, start.to_s, stop.to_s, 'withscores')
       end
     end
 
