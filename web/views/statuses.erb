@@ -23,12 +23,12 @@
     <th>Worker/jid</th>
     <th>Job args</th>
     <th>
-      <a href="<%= root_path %>/statuses?sort=status&order_by=<%= order_by %>&page=1">
+      <a href="<%= root_path %>statuses?sort=status&order_by=<%= order_by %>&page=1">
         Status <%= sort_symbol if params[:sort] == 'status' %>
       </a>
     </th>
     <th>
-      <a href="<%= root_path %>/statuses?sort=last_updated&order_by=<%= order_by %>&page=1">
+      <a href="<%= root_path %>statuses?sort=last_updated&order_by=<%= order_by %>&page=1">
         Last Updated <%= sort_symbol if !params[:sort] || params[:sort] == 'last_updated' %>
       </a>
     </th>
@@ -39,7 +39,7 @@
   <% @statuses.each do |container| %>
     <tr>
       <td>
-        <a href="<%= root_path %>/statuses/<%= container.jid %>">
+        <a href="<%= root_path %>statuses/<%= container.jid %>">
           <%= container.worker %>
           <br />
           <%= container.jid %>
