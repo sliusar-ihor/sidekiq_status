@@ -224,7 +224,7 @@ module SidekiqStatus
 
       Sidekiq.redis do |conn|
         conn.multi do
-          conn.setex(status_key, self.ttl, data)
+          conn.set(status_key, data, ex: self.ttl)
           conn.zadd(self.class.statuses_key, Time.now.to_f.to_s, self.jid)
         end
       end
