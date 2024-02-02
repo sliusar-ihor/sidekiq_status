@@ -180,11 +180,11 @@ module SidekiqStatus
       threshold = Time.now - self.ttl
 
       data = Sidekiq.redis do |conn|
-        conn.multi do
-          conn.mget(*keys)
+        conn.multi do |transaction|
+          transaction.mget(*keys)
 
-          conn.zremrangebyscore(kill_key, 0, threshold.to_i) # Clean up expired unprocessed kill requests
-          conn.zremrangebyscore(statuses_key, 0, threshold.to_i) # Clean up expired statuses from statuses sorted set
+          transaction.zremrangebyscore(kill_key, 0, threshold.to_i) # Clean up expired unprocessed kill requests
+          transaction.zremrangebyscore(statuses_key, 0, threshold.to_i) # Clean up expired statuses from statuses sorted set
         end
       end
 
@@ -223,9 +223,9 @@ module SidekiqStatus
       data = Sidekiq.dump_json(data)
 
       Sidekiq.redis do |conn|
-        conn.multi do
-          conn.set(status_key, data, ex: self.ttl)
-          conn.zadd(self.class.statuses_key, Time.now.to_f.to_s, self.jid)
+        conn.multi do |transaction|
+          transaction.set(status_key, data, ex: self.ttl)
+          transaction.zadd(self.class.statuses_key, Time.now.to_f.to_s, self.jid)
         end
       end
     end
@@ -233,7 +233,7 @@ module SidekiqStatus
     # Delete current container data from redis
     def delete
       Sidekiq.redis do |conn|
-        conn.multi do
+        conn.multi do |transaction|
           conn.del(status_key)
 
           conn.zrem(self.class.kill_key, self.jid)
@@ -262,9 +262,9 @@ module SidekiqStatus
       self.status = 'killed'
 
       Sidekiq.redis do |conn|
-        conn.multi do
+        conn.multi do |transaction|
           save
-          conn.zrem(self.class.kill_key, self.jid)
+          transaction.zrem(self.class.kill_key, self.jid)
         end
       end
     end
@@ -278,7 +278,7 @@ module SidekiqStatus
     def pct_complete
       (at.to_f / total * 100).round
     rescue FloatDomainError, ZeroDivisionError
-      0  
+      0
     end
 
     # @param [Fixnum] at Report the progress of a job which is tracked by the current {SidekiqStatus::Container}
