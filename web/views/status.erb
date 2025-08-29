@@ -1,3 +1,5 @@
+<% style_tag "sidekiq_status/stylesheets/status.css" %>
+
 <h3 class="wi">
   Job <%= @status.jid %> is <%= @status.status %> (<%= @status.pct_complete %>% done)
 </h3>
@@ -43,7 +45,7 @@
           <td><%= @status.message %></td>
         </tr>
         <tr>
-          <td>payloadss</td>
+          <td>payloads</td>
           <td>
             <pre>
               <%= h @status.payload.to_s %>

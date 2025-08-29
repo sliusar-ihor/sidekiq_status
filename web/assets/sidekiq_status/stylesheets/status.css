@@ -1,0 +1,47 @@
+
+.progress {
+      position: relative;
+      width: 150px;
+      height: 24px;
+}
+
+.progress-full {
+    width: 100%;
+    height: 30px;
+}
+
+.progress-bar {
+    position: relative;
+    background: linear-gradient(90deg, #4facfe, #00f2fe);
+}
+
+.progress-percentage {
+    margin: 5px;
+    padding-left: 4px;
+    color: #333;
+    text-align: left;
+    text-shadow: 0 0 5px white;
+    font-weight: bold;
+    font-size: 14px;
+}
+.bar {
+    position: relative;
+    background: linear-gradient(90deg, #4facfe, #00f2fe);
+    font-size: 13px;
+    font-weight: bold;
+    text-align: left;
+    padding-right: 8px;
+    line-height: 24px;
+    padding-left: 10px;
+}
+.message {
+    position: absolute;
+    top: 0;
+    right: 8px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    font-weight: 500;
+    font-size: 12px;
+    z-index: 1;
+}
